@@ -5,28 +5,30 @@
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>ERP Systems</title>
- <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-  <link rel="stylesheet" href="{{asset('assets/admin/assets/css/app.min.css')}}">
-  <link rel="stylesheet" href="{{asset('assets/admin/assets/bundles/jqvmap/dist/jqvmap.min.css')}}">
-  <link rel="stylesheet" href="{{asset('assets/admin/assets/bundles/flag-icon-css/css/flag-icon.min.css')}}">
-  <link rel="stylesheet" href="{{asset('assets/admin/assets/css/style.css')}}">
-  <link rel="stylesheet" href="{{asset('assets/admin/assets/css/components.css')}}">
-  <link rel="stylesheet" href="{{asset('assets/admin/assets/css/custom.css')}}">
-  <link rel='shortcut icon' type='image/x-icon' href="{{asset('assets/admin/assets/img/favicon.ico')}}" />
-  {{-- <script src="{{asset('assets/admin/assets/js/auth.js')}}" defer></script> --}}
 
- 
-    <!-- Template CSS -->
-    <!-- Custom style CSS -->
+  <!-- Vendor CSS -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/bundles/select2/dist/css/select2.min.css') }}">
+
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/app.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/bundles/jqvmap/dist/jqvmap.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/bundles/flag-icon-css/css/flag-icon.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/components.css') }}">
+  <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/custom.css') }}">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/admin/assets/img/favicon.ico') }}" />
 </head>
-<style>
-    span.select2 {
-        width: 100% !important;
-    }
 
-    .modal-body .row input {
-        height: 42px !important;
-    }
+<style>
+  span.select2 {
+    width: 100% !important;
+  }
+
+  .modal-body .row input {
+    height: 42px !important;
+  }
 </style>
 </head>
 
@@ -135,6 +137,11 @@
                 <i class="fas fa-shopping-cart"></i>
                 <span>Orders</span></a>
             </li>
+            <li class="dropdown ">
+              <a href="{{url('orderdetay')}}" class="nav-link">
+                <i class="fas fa-list-alt"></i>
+                <span>Orders Detay</span></a>
+            </li>
             <li class="dropdown">
               <a href="{{url('user')}}" class="nav-link">
                 <i class="fas fa-user"></i>
@@ -156,37 +163,56 @@
     </div>
   </div>
   <!-- General JS Scripts -->
-  <script src="{{asset('assets/admin/assets/js/app.min.js')}}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/jquery/jquery.min.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/cleave-js/cleave.min.js') }}"></script>
+  <script src="{{asset('assets/admin/assets/js/page/forms-advanced-forms.js')}}"></script>
+
+  <!-- 2) jQuery UI (depends on jQuery) -->
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-  <!-- JS Libraies -->
-  <script src="{{asset('assets/admin/assets/bundles/chartjs/chart.min.js')}}"></script>
-  <script src="{{asset('assets/admin/assets/bundles/jquery.sparkline.min.js')}}"></script>
-  <script src="{{asset('assets/admin/assets/bundles/apexcharts/apexcharts.min.js')}}"></script>
-  <script src="{{asset('assets/admin/assets/bundles/jqvmap/dist/jquery.vmap.min.js')}}"></script>
-  <script src="{{asset('assets/admin/assets/bundles/jqvmap/dist/maps/jquery.vmap.world.js')}}"></script>
-  <script src="{{asset('assets/admin/assets/bundles/jqvmap/dist/maps/jquery.vmap.indonesia.js')}}"></script>
-  <script src="{{asset('assets/admin/assets/js/page/advance-table.js')}}"></script>
+  <!-- 3) Moment + Daterangepicker (optional) -->
+  <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-  <!-- Page Specific JS File -->
-  <script src="{{asset('assets/admin/assets/js/page/widget-chart.js')}}"></script>
-  <!-- Template JS File -->
-  <script src="{{asset('assets/admin/assets/js/scripts.js')}}"></script>
-  <!-- Custom JS File -->
-  <script src="{{asset('assets/admin/assets/js/custom.js')}}"></script>
+  <!-- 4) Select2 (for your dropdowns) -->
+  <script src="{{ asset('assets/admin/assets/bundles/select2/dist/js/select2.full.min.js') }}"></script>
 
+  <!-- 5) Template/Theme base (often uses jQuery) -->
+  <script src="{{ asset('assets/admin/assets/js/app.min.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/js/scripts.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/js/custom.js') }}"></script>
+
+  <!-- 6) Other plugins you already had -->
+  <script src="{{ asset('assets/admin/assets/bundles/chartjs/chart.min.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/jquery.sparkline.min.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/apexcharts/apexcharts.min.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/jqvmap/dist/jquery.vmap.min.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/bundles/jqvmap/dist/maps/jquery.vmap.indonesia.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/js/page/advance-table.js') }}"></script>
+  <script src="{{ asset('assets/admin/assets/js/page/widget-chart.js') }}"></script>
+
+  <!-- 7) Your page-specific inline JS LAST -->
   <script>
-    $(function () {
+    $(function() {
+      // daterange example
       $('input[name="daterange"]').daterangepicker({
         opens: 'left'
-      }, function (start, end, label) {
-        console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
       });
+
+      // initialize Select2 globally (optional)
+      $('.select2').select2({
+        width: '100%',
+        placeholder: 'Seçiniz',
+        allowClear: true
+      });
+
+      // if this layout also needs to populate ref-data selects,
+      // ensure you call your loader AFTER Select2 + jQuery are ready, e.g.:
+      // loadRefDataIntoForm();  // the function we wrote earlier
     });
   </script>
 
 </body>
+
 </html>
