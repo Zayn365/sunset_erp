@@ -4,6 +4,8 @@
 // app/Http/Controllers/OrderController.php
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,27 +17,68 @@ class OrderController extends Controller
     }
 
     // LIST: headers you asked for
-    public function data()
+    public function data(Request $request)
     {
-        // If you have a real "orders" header table, use that.
-        // Fallback: derive minimal headers from ordersdetay.
+        $user  = Auth::user();
+        $limit = (int) $request->input('limit', 500);
+        $limit = max(1, min($limit, 2000)); // safety cap
+
         if (DB::getSchemaBuilder()->hasTable('orders')) {
-            $rows = DB::table('orders as o')
-                // ->select('o.fis_no', 'o.siparis_tarih', 'o.konu', 'o.marka', 'o.teslimat_tipi', 'o.kargo_no', 'o.dolgu')
-                ->orderByDesc('o.id')->limit(500)->get();
+            // ---- Primary source: orders header table
+            $q = DB::table('orders as o')->select('o.*');
+
+            // Non-admins only see their own orders
+            if (!$user->isAdmin()) {
+                if (Schema::hasColumn('orders', 'user_id')) {
+                    $q->where('o.user_id', $user->id);
+                } else {
+                    $owner = $user->username ?: $user->name;
+                    $q->where(function ($w) use ($owner) {
+                        $w->where('o.hazirlayan', $owner)
+                            ->orWhere('o.created_by', $owner)
+                            ->orWhere('o.olusturan',  $owner);
+                    });
+                }
+            }
+
+            $rows = $q->orderByDesc('o.id')->limit($limit)->get();
         } else {
-            $rows = DB::table('ordersdetay as d')
-                ->selectRaw('MAX(d.fis_no) as fis_no,
-                             MAX(d.created_at) as siparis_tarih,
-                             "" as konu, "" as marka, "" as teslimat_tipi, "" as kargo_no, "" as dolgu')
+            // ---- Fallback: derive headers from ordersdetay
+            $q = DB::table('ordersdetay as d');
+
+            if (!$user->isAdmin()) {
+                if (Schema::hasColumn('ordersdetay', 'user_id')) {
+                    $q->where('d.user_id', $user->id);
+                } else {
+                    $owner = $user->username ?: $user->name;
+                    if (Schema::hasColumn('ordersdetay', 'hazirlayan')) {
+                        $q->where('d.hazirlayan', $owner);
+                    } elseif (Schema::hasColumn('ordersdetay', 'created_by')) {
+                        $q->where('d.created_by', $owner);
+                    } elseif (Schema::hasColumn('ordersdetay', 'olusturan')) {
+                        $q->where('d.olusturan', $owner);
+                    }
+                }
+            }
+
+            $rows = $q->selectRaw('
+                    MAX(d.fis_no)             as fis_no,
+                    MAX(d.created_at)         as siparis_tarih,
+                    ""                        as konu,
+                    ""                        as marka,
+                    ""                        as teslimat_tipi,
+                    ""                        as kargo_no,
+                    ""                        as dolgu
+                ')
                 ->groupBy('d.fis_no')
                 ->orderByDesc(DB::raw('MAX(d.id)'))
-                ->limit(500)
+                ->limit($limit)
                 ->get();
         }
 
         return response()->json($rows);
     }
+
 
     // DROPDOWN data (DB-backed + fixed lists)
 

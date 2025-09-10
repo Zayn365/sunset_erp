@@ -2,4 +2,6 @@
 
 return [
     App\Providers\AppServiceProvider::class,
+    App\Providers\AuthServiceProvider::class,   // <— add this line
+
 ];

@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/components.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/custom.css') }}">
-  <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/admin/assets/img/favicon.ico') }}" />
+  <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/admin/assets/img/logo.png') }}" />
 </head>
 
 <style>
@@ -33,6 +33,9 @@
 </head>
 
 <body>
+  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+    @csrf
+  </form>
   <div class="loader"></div>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -110,9 +113,9 @@
               <a href="profile.html" class="dropdown-item has-icon"> <i class="far
 										fa-user"></i> Profile
               </a>
-              <a type="button" onclick="logout()" class="dropdown-item has-icon text-danger"> <i
-                  class="fas fa-sign-out-alt"></i>
-                Logout
+              <a href="#" class="dropdown-item has-icon text-danger"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fas fa-sign-out-alt"></i> Logout
               </a>
             </div>
           </li>
@@ -127,26 +130,16 @@
           </div>
           <ul class="sidebar-menu">
             <li class="menu-header">Main</li>
-            <li class="dropdown active">
-              <a href="{{url('/')}}" class="nav-link">
-                <i class="fas fa-desktop"></i>
-                <span>Dashboard</span></a>
-            </li>
-            <li class="dropdown ">
-              <a href="{{url('order')}}" class="nav-link">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Orders</span></a>
-            </li>
-            <li class="dropdown ">
-              <a href="{{url('orderdetay')}}" class="nav-link">
-                <i class="fas fa-list-alt"></i>
-                <span>Orders Detay</span></a>
-            </li>
-            <li class="dropdown">
-              <a href="{{url('user')}}" class="nav-link">
-                <i class="fas fa-user"></i>
-                <span>Users</span></a>
-            </li>
+            <li class="dropdown"><a href="{{ url('/') }}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a></li>
+            <li class="dropdown"><a href="{{ route('order') }}" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Orders</span></a></li>
+            <li class="dropdown"><a href="{{ route('profile') }}" class="nav-link"><i class="far fa-user"></i><span>Profile</span></a></li>
+
+            {{-- admin only --}}
+            @if(auth()->user()?->isAdmin())
+            <li class="dropdown"><a href="{{ route('orderdetay') }}" class="nav-link"><i class="fas fa-list-alt"></i><span>Orders Detay</span></a></li>
+            <li class="dropdown"><a href="{{ route('offer.index') }}" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Offers</span></a></li>
+            <li class="dropdown"><a href="{{ route('user.index') }}" class="nav-link"><i class="fas fa-user-cog"></i><span>Users</span></a></li>
+            @endif
           </ul>
         </aside>
       </div>
@@ -211,6 +204,20 @@
       // ensure you call your loader AFTER Select2 + jQuery are ready, e.g.:
       // loadRefDataIntoForm();  // the function we wrote earlier
     });
+  </script>
+  <script>
+    function logout() {
+      const f = document.createElement('form');
+      f.method = 'POST';
+      f.action = '{{ route("logout") }}';
+      const t = document.createElement('input');
+      t.type = 'hidden';
+      t.name = '_token';
+      t.value = '{{ csrf_token() }}';
+      f.appendChild(t);
+      document.body.appendChild(f);
+      f.submit();
+    }
   </script>
 
 </body>

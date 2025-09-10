@@ -11,7 +11,7 @@ class OfferController extends Controller
     /** Offer list page */
     public function index()
     {
-        return view('offer'); // resources/views/offer.blade.php
+        return view('admin.offer'); // resources/views/offer.blade.php
     }
 
     /** JSON for your table/grid */
@@ -34,7 +34,7 @@ class OfferController extends Controller
         ])) ?: ['*'];
 
         $rows = DB::table('teklif')
-            ->select($select)
+            // ->select($select)
             ->orderBy('fis_no', 'desc')
             ->limit(500)
             ->get();

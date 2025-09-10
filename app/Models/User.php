@@ -2,47 +2,40 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    protected $table = 'user';
+    protected $primaryKey = 'id';
+    public $timestamps = false;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'kod',
+        'ad',
+        'soyad',
+        'mail',
+        'sifre',
+        'kullanici_tip',
+        // ...other fields...
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['sifre'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // Tell Laravel which attribute is the password
+    public function getAuthPasswordName(): string
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return 'sifre';
+    }
+
+    // Return the password value
+    public function getAuthPassword()
+    {
+        return $this->sifre;
+    }
+
+    public function isAdmin(): bool
+    {
+        return strtolower((string)$this->kullanici_tip) === 'admin';
     }
 }
