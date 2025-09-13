@@ -61,6 +61,22 @@
                             </div>
                         </div>
 
+                        {{-- NEW: Şifre field --}}
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Şifre</label>
+                                <div class="input-group">
+                                    <input name="sifre" id="sifre" type="password" class="form-control" placeholder="Yeni şifre">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePwd">Göster</button>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted" id="pwdHint">
+                                    Düzenlemede boş bırakırsanız mevcut şifre korunur.
+                                </small>
+                            </div>
+                        </div>
+
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label>Bayi</label>
@@ -131,6 +147,7 @@ $userStore = route('user.store'); // POST create
         const $body = $('#users-body');
         const $form = $('#userForm');
         const $formTitle = $('#formTitle');
+        const $pwd = $('#sifre');
 
         function fmt(v) {
             return (v === null || v === undefined || v === '') ? '-' : v;
@@ -142,7 +159,8 @@ $userStore = route('user.store'); // POST create
             $('[name=_method]').val('POST');
             $formTitle.text('New User');
             $('#btnSave').text('Kaydet');
-            // focus first required field
+            $('#pwdHint').text('Oluşturmada şifre isteğe bağlıdır.');
+            $pwd.attr('placeholder', 'Yeni şifre');
             $form.find('input[name="kod"]').trigger('focus');
         }
 
@@ -186,6 +204,13 @@ $userStore = route('user.store'); // POST create
             const method = $('[name=_method]').val();
             const url = method === 'PUT' ? (@json($userShow) + '/' + id) : @json($userStore);
 
+            // Serialize, but drop 'sifre' if empty on PUT
+            let data = $form.serializeArray();
+            if (method === 'PUT') {
+                data = data.filter(p => !(p.name === 'sifre' && (!p.value || p.value.trim() === '')));
+            }
+            const payload = $.param(data);
+
             try {
                 await $.ajax({
                     url,
@@ -193,7 +218,7 @@ $userStore = route('user.store'); // POST create
                     headers: {
                         'X-CSRF-TOKEN': csrf
                     },
-                    data: $form.serialize()
+                    data: payload
                 });
                 resetForm();
                 loadUsers();
@@ -204,7 +229,6 @@ $userStore = route('user.store'); // POST create
         });
 
         // Edit (load then fill form)
-        // Edit (load then fill form)
         $(document).on('click', '.u-edit', async function() {
             const id = $(this).data('id');
             try {
@@ -213,9 +237,13 @@ $userStore = route('user.store'); // POST create
                 $('[name=_method]').val('PUT');
                 $formTitle.text('Edit User');
                 $('#btnSave').text('Güncelle');
+                $('#pwdHint').text('Şifreyi değiştirmek istemiyorsanız boş bırakın.');
+                $pwd.val('').attr('placeholder', 'Yeni şifre (isteğe bağlı)');
+
                 for (const [k, v] of Object.entries(o)) {
                     const $el = $form.find('[name="' + k + '"]');
                     if ($el.length) {
+                        if ($el.attr('name') === 'sifre') continue; // never prefill password
                         if ($el.is('select')) $el.val(String(v));
                         else $el.val(v);
                     }
@@ -244,6 +272,13 @@ $userStore = route('user.store'); // POST create
                 console.error(xhr);
                 alert(xhr.responseJSON?.message || 'Silinemedi');
             }
+        });
+
+        // Show/Hide password
+        $('#togglePwd').on('click', function() {
+            const type = $pwd.attr('type') === 'password' ? 'text' : 'password';
+            $pwd.attr('type', type);
+            $(this).text(type === 'password' ? 'Göster' : 'Gizle');
         });
 
         $('#btnReset').on('click', resetForm);
