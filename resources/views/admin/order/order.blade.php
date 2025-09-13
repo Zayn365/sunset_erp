@@ -18,6 +18,9 @@
 </head>
 
 <body>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
+        @csrf
+    </form>
     <div class="loader"></div>
     <div id="app">
         <div class="main-wrapper main-wrapper-1">
@@ -29,7 +32,7 @@
                     <ul class="navbar-nav mr-3">
                         <li><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg collapse-btn"><i data-feather="align-justify"></i></a></li>
                         <li>
-                            <h3 class="m-0 nav-link nav-link-lg text-dark">ORDERS</h3>
+                            <h3 class="m-0 nav-link nav-link-lg text-dark"></h3>
                         </li>
                     </ul>
                 </div>
@@ -57,7 +60,10 @@
                         <div class="dropdown-menu dropdown-menu-right pullDown">
                             <div class="dropdown-title">Hello Sarah Smith</div>
                             <a href="profile.html" class="dropdown-item has-icon"><i class="far fa-user"></i> Profile</a>
-                            <a type="button" onclick="logout()" class="dropdown-item has-icon text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            <a href="#" class="dropdown-item has-icon text-danger"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
                         </div>
                     </li>
                 </ul>
@@ -71,15 +77,59 @@
                     </div>
                     <ul class="sidebar-menu">
                         <li class="menu-header">Main</li>
-                        <li class="dropdown "><a href="{{url('/')}}" class="nav-link"><i class="fas fa-desktop"></i><span>Dashboard</span></a></li>
-                        <li class="dropdown active"><a href="{{url('order')}}" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Orders</span></a></li>
-                        <li class="dropdown ">
-                            <a href="{{url('orderdetay')}}" class="nav-link">
-                                <i class="fas fa-list-alt"></i>
-                                <span>Orders Detay</span></a>
+
+                        {{-- Dashboard --}}
+                        <li class="dropdown {{ request()->routeIs('home') ? 'active' : '' }}">
+                            <a href="{{ route('home') }}"
+                                class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
+                                <i class="fas fa-desktop"></i><span>Dashboard</span>
+                            </a>
                         </li>
-                        <li class="dropdown"><a href="{{url('user')}}" class="nav-link"><i class="fas fa-user"></i><span>Users</span></a></li>
+
+                        {{-- Orders (covers /order and all order* named routes) --}}
+                        <li class="dropdown {{ request()->routeIs('order*') || request()->routeIs('orders.*') ? 'active' : '' }}">
+                            <a href="{{ route('order') }}"
+                                class="nav-link {{ request()->routeIs('order*') || request()->routeIs('orders.*') ? 'active' : '' }}">
+                                <i class="fas fa-shopping-cart"></i><span>Orders</span>
+                            </a>
+                        </li>
+
+                        {{-- Profile --}}
+                        <li class="dropdown {{ request()->routeIs('profile') ? 'active' : '' }}">
+                            <a href="{{ route('profile') }}"
+                                class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
+                                <i class="far fa-user"></i><span>Profile</span>
+                            </a>
+                        </li>
+
+                        {{-- Admin-only links (hidden for non-admins) --}}
+                        @if (auth()->user()?->isAdmin())
+                        {{-- Order Detay --}}
+                        <li class="dropdown {{ request()->routeIs('orderdetay*') ? 'active' : '' }}">
+                            <a href="{{ route('orderdetay') }}"
+                                class="nav-link {{ request()->routeIs('orderdetay*') ? 'active' : '' }}">
+                                <i class="fas fa-list-alt"></i><span>Orders Detay</span>
+                            </a>
+                        </li>
+
+                        {{-- Offers --}}
+                        <li class="dropdown {{ request()->routeIs('offer.*') ? 'active' : '' }}">
+                            <a href="{{ route('offer.index') }}"
+                                class="nav-link {{ request()->routeIs('offer.*') ? 'active' : '' }}">
+                                <i class="fas fa-file-invoice-dollar"></i><span>Offers</span>
+                            </a>
+                        </li>
+
+                        {{-- Users --}}
+                        <li class="dropdown {{ request()->routeIs('user.*') ? 'active' : '' }}">
+                            <a href="{{ route('user.index') }}"
+                                class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
+                                <i class="fas fa-user-cog"></i><span>Users</span>
+                            </a>
+                        </li>
+                        @endif
                     </ul>
+
                 </aside>
             </div>
 

@@ -10,7 +10,7 @@ class AdminOnly
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check() || !Auth::user()->is_admin) {
+        if (!Auth::check() || !Auth::user()->kullanici_tip !== 0) {
             abort(403, 'Only admins can access this area.');
         }
 

@@ -1,434 +1,326 @@
 @extends('master')
 @section('content')
+
+@php
+$offerData = route('offer.data'); // GET list (headers)
+$offerStore = route('offer.store'); // POST create/update
+$offerShow = url('/offer'); // /offer/{id}
+@endphp
+
 <div class="main-content">
     <section class="section">
         <div class="section-body">
-            <div class="row">
-                <div class="col-12 ">
-                    <div class="d-flex justify-content-end mb-2">
-                        <button id="btnNewOffer" class="btn btn-icon icon-left btn-primary" type="button" data-toggle="modal" data-target=".new-offer">
-                            <i class="fas fa-plus-circle"></i> New Offer
-                        </button>
-                    </div>
+
+            {{-- Add / Edit (inline) --}}
+            <div class="card mb-4">
+                <div class="card-header bg-primary d-flex align-items-center justify-content-between">
+                    <h4 class="text-white mb-0" id="formTitle">New Offer</h4>
+                    <button type="button" class="btn btn-light btn-sm" id="btnReset">Reset</button>
                 </div>
+                <div class="card-body">
+                    <form id="offerForm" autocomplete="off">
+                        @csrf
+                        <input type="hidden" name="_method" value="POST">
+                        <input type="hidden" id="row_id">
 
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-primary">
-                            <h4 class="text-white">Offers</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover" id="offers-table" style="width:100%;">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:160px">Action</th>
-                                            <th>ID</th>
-                                            <th>Fiş No</th>
-                                            <th>En</th>
-                                            <th>Boy</th>
-                                            <th>Miktar</th>
-                                            <th>M2</th>
-                                            <th>M2 Fiyat</th>
-                                            <th>Tutar Döviz</th>
-                                            <th>Renk</th>
-                                            <th>Mekanizma Yön</th>
-                                            <th>Sistem</th>
-                                            <th>Slayt</th>
-                                            <th>Cam</th>
-                                            <th>İç Cam</th>
-                                            <th>Dış Cam</th>
-                                            <th>Kasa Renk</th>
-                                            <th>Alt Kasa Renk</th>
-                                            <th>Cam Çıtası Renk</th>
-                                            <th>Açıklama</th>
-                                            <th>Poz</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
+                        <div class="form-row">
+                            <div class="form-group col-md-2">
+                                <label>Fiş No</label>
+                                <input name="fis_no" class="form-control">
                             </div>
-
-                            <!-- VIEW MODAL -->
-                            <div class="modal fade" id="offerView" tabindex="-1" role="dialog" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-info p-3">
-                                            <h5 class="modal-title text-white">Offer Detail</h5>
-                                            <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <dl class="row mb-0" id="offerViewBody"></dl>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="form-group col-md-3">
+                                <label>Cari Kod</label>
+                                <input name="cari_kod" class="form-control">
                             </div>
-
-                            <!-- NEW / EDIT MODAL -->
-                            <div class="modal fade new-offer" tabindex="-1" role="dialog" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-primary p-3">
-                                            <h5 class="modal-title text-white" id="offerModalTitle">New Offer</h5>
-                                            <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form id="offerForm">@csrf
-                                                <input type="hidden" name="_method" value="POST">
-                                                <input type="hidden" id="row_id">
-                                                <div class="form-row">
-                                                    <div class="form-group col-md-3">
-                                                        <label>Fiş No <small class="text-muted">(ops.)</small></label>
-                                                        <input name="fis_no" class="form-control" autocomplete="off">
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>En</label>
-                                                        <input name="en" class="form-control" type="number" step="0.01" required>
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>Boy</label>
-                                                        <input name="boy" class="form-control" type="number" step="0.01" required>
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>Miktar</label>
-                                                        <input name="miktar" class="form-control" type="number" step="1" value="1" required>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-row">
-                                                    <div class="form-group col-md-3">
-                                                        <label>M2 Fiyatı</label>
-                                                        <input name="m2_fiyat" class="form-control" type="number" step="0.01" required>
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>M2 (otomatik)</label>
-                                                        <input id="m2_view" class="form-control" readonly>
-                                                        <input type="hidden" name="m2" id="m2_hidden">
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>Tutar Döviz (otomatik)</label>
-                                                        <input id="tutar_view" class="form-control" readonly>
-                                                        <input type="hidden" name="tutar_doviz" id="tutar_hidden">
-                                                    </div>
-                                                    <div class="form-group col-md-3">
-                                                        <label>Cam</label>
-                                                        <select name="cam" id="cam" class="form-control select2" required></select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-row">
-                                                    <div class="form-group col-md-6">
-                                                        <label>Açıklama</label>
-                                                        <input name="aciklama" class="form-control">
-                                                    </div>
-                                                    <div class="form-group col-md-6">
-                                                        <label>Poz</label>
-                                                        <input name="poz" class="form-control">
-                                                    </div>
-                                                </div>
-
-                                                <button type="button" class="btn btn-light mb-2" data-toggle="collapse" data-target="#moreFields">Diğer Alanlar</button>
-                                                <div id="moreFields" class="collapse">
-                                                    <div class="form-row">
-                                                        <div class="form-group col-md-3">
-                                                            <label>Renk</label>
-                                                            <select name="renk" id="renk" class="form-control select2"></select>
-                                                        </div>
-                                                        <div class="form-group col-md-3">
-                                                            <label>Mekanizma Yön</label>
-                                                            <select name="mekanizma_yon" id="mekanizma_yon" class="form-control select2"></select>
-                                                        </div>
-                                                        <div class="form-group col-md-3">
-                                                            <label>Sistem</label>
-                                                            <select name="sistem" id="sistem" class="form-control select2"></select>
-                                                        </div>
-                                                        <div class="form-group col-md-3">
-                                                            <label>Slayt</label>
-                                                            <select name="slayt" id="slayt" class="form-control select2"></select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-row">
-                                                        <div class="form-group col-md-3">
-                                                            <label>İç Cam</label>
-                                                            <select name="ic_cam" id="ic_cam" class="form-control select2"></select>
-                                                        </div>
-                                                        <div class="form-group col-md-3">
-                                                            <label>Dış Cam</label>
-                                                            <select name="dis_cam" id="dis_cam" class="form-control select2"></select>
-                                                        </div>
-                                                        <div class="form-group col-md-3">
-                                                            <label>Kasa Renk</label>
-                                                            <select name="kasa_renk" id="kasa_renk" class="form-control select2"></select>
-                                                        </div>
-                                                        <div class="form-group col-md-3">
-                                                            <label>Alt Kasa Renk</label>
-                                                            <select name="alt_kasa_renk" id="alt_kasa_renk" class="form-control select2"></select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-row">
-                                                        <div class="form-group col-md-3">
-                                                            <label>Cam Çıtası Renk</label>
-                                                            <select name="cam_cita_renk" id="cam_cita_renk" class="form-control select2"></select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="d-flex">
-                                                    <button type="submit" class="btn btn-primary ml-auto" id="offerSubmitBtn">Kaydet</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div><!-- /modal -->
+                            <div class="form-group col-md-3">
+                                <label>Müşteri Ad</label>
+                                <input name="musteri_ad" class="form-control">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Marka</label>
+                                <input name="marka" class="form-control">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Bölüm</label>
+                                <input name="bolum" class="form-control">
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Konu</label>
+                                <input name="konu" class="form-control">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Döviz</label>
+                                <select name="teklif_doviz" class="form-control">
+                                    <option value="">Seçiniz</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="TRY">TRY</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Kur</label>
+                                <input name="teklif_kur" class="form-control" type="number" step="0.0001">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>Döviz Tutar</label>
+                                <input name="teklif_doviz_tutar" class="form-control" type="number" step="0.01">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>TL Tutar (otomatik)</label>
+                                <input id="tl_view" class="form-control" readonly>
+                                <input type="hidden" name="teklif_tl_tutar" id="tl_hidden">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Teklif Durum</label>
+                                <input name="teklif_durum" class="form-control" placeholder="Örn: Teklif Süreci">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Teklif Grubu</label>
+                                <input name="teklif_grubu" class="form-control" placeholder="Örn: SEÇİNİZ">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Termin Tarih</label>
+                                <input name="termin_tarih" class="form-control" type="date">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Sevk Adres</label>
+                                <input name="sevk_adres" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Onay Durum</label>
+                                <select name="onay_durum" class="form-control">
+                                    <option value="">Seçiniz</option>
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Onay Tarih</label>
+                                <input name="onay_tarih" class="form-control" type="date">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Onaylayan</label>
+                                <input name="onaylayan" class="form-control">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Hazırlayan</label>
+                                <input name="hazirlayan" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label>Açıklama</label>
+                                <input name="aciklama" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary ml-auto" id="btnSave">Kaydet</button>
+                        </div>
+                    </form>
                 </div>
-
             </div>
+
+            {{-- List --}}
+            <div class="card">
+                <div class="card-header bg-primary">
+                    <h4 class="text-white mb-0">Offers</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width:140px">Action</th>
+                                    <th>ID</th>
+                                    <th>Fiş No</th>
+                                    <th>Cari Kod</th>
+                                    <th>Müşteri Ad</th>
+                                    <th>Marka</th>
+                                    <th>Bölüm</th>
+                                    <th>Durum</th>
+                                    <th>Grup</th>
+                                    <th>Döviz</th>
+                                    <th>Döviz Tutar</th>
+                                    <th>Kur</th>
+                                    <th>TL Tutar</th>
+                                    <th>Termin</th>
+                                    <th>Onay</th>
+                                    <th>Onay Tarih</th>
+                                    <th>Hazırlayan</th>
+                                    <th>Tarih</th>
+                                </tr>
+                            </thead>
+                            <tbody id="offers-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 </div>
 @endsection
 
-@php
-// convenience URLs if you don't want to name all routes
-$offerData = route('offer.data');
-$offerStore = route('offer.store');
-@endphp
-
+@push('scripts')
 <script>
-    $(function() {
-        // -------- DataTable --------
-        const dt = $('#offers-table').DataTable({
-            destroy: true,
-            pageLength: 25,
-            data: [],
-            order: [
-                [0, 'asc']
-            ],
-            columns: [{
-                    data: null,
-                    orderable: false,
-                    render: r => `
-          <div class="btn-group btn-group-sm">
-            <button class="btn btn-info   act-view" data-id="${r.id}">View</button>
-            <button class="btn btn-warning act-edit" data-id="${r.id}">Edit</button>
-            <button class="btn btn-danger  act-del"  data-id="${r.id}">Delete</button>
-          </div>`
-                },
-                {
-                    data: 'id'
-                }, {
-                    data: 'fis_no'
-                }, {
-                    data: 'en'
-                }, {
-                    data: 'boy'
-                }, {
-                    data: 'miktar'
-                }, {
-                    data: 'm2'
-                },
-                {
-                    data: 'm2_fiyat'
-                }, {
-                    data: 'tutar_doviz'
-                },
-                {
-                    data: 'renk'
-                }, {
-                    data: 'mekanizma_yon'
-                }, {
-                    data: 'sistem'
-                }, {
-                    data: 'slayt'
-                },
-                {
-                    data: 'cam'
-                }, {
-                    data: 'ic_cam'
-                }, {
-                    data: 'dis_cam'
-                },
-                {
-                    data: 'kasa_renk'
-                }, {
-                    data: 'alt_kasa_renk'
-                }, {
-                    data: 'cam_cita_renk'
-                },
-                {
-                    data: 'aciklama'
-                }, {
-                    data: 'poz'
-                },
-            ]
-        });
+    (function() {
+        const csrf = $('meta[name="csrf-token"]').attr('content');
+        const $form = $('#offerForm');
+        const $tbody = $('#offers-body');
+        const $title = $('#formTitle');
 
-        function loadOffers() {
-            $.getJSON(@json($offerData)).done(rows => {
-                rows.sort((a, b) => b.id - a.id);
-                dt.clear().rows.add(rows).draw();
-            });
-        }
-        loadOffers();
-
-        // -------- Select helpers --------
-        function fillSelect($s, options, placeholder = 'Seçiniz') {
-            if ($s.data('select2')) $s.select2('destroy');
-            $s.empty().append(new Option(placeholder, '', true, false));
-            if (Array.isArray(options)) {
-                options.forEach(v => $s.append(new Option(v, v)));
-            } else if (options && typeof options === 'object') {
-                Object.entries(options).forEach(([val, text]) => $s.append(new Option(text, val)));
-            }
-            $s.select2({
-                width: '100%',
-                placeholder,
-                allowClear: true,
-                dropdownParent: $('.new-offer')
-            });
-            $s.val(null).trigger('change');
+        function fmt(v) {
+            return (v === null || v === undefined || v === '') ? '-' : v;
         }
 
-        let __REF = null;
-
-        function getRef() {
-            if (__REF) return $.Deferred().resolve(__REF).promise();
-            return $.getJSON('{{ route("orders.ref") }}').then(r => (__REF = r || {})).fail(() => ({
-                mekanizma_yon: ['SOL', 'SAĞ'],
-                sistem: ['Zincirli', 'Doğrama Üzeri'],
-                slayt: ['Var', 'Yok'],
-                cam: ['Var', 'Yok'],
-                camkalinlik: [4, 6, 8, 10],
-                kasarenk: ['Siyah', 'Beyaz', 'Gri'],
-                renk: ['Siyah', 'Beyaz', 'Gri']
-            }));
+        function num(v) {
+            const n = parseFloat(String(v).replace(',', '.'));
+            return isNaN(n) ? 0 : n;
         }
 
-        function loadRefIntoForm() {
-            const $renk = $('#renk'),
-                $mek = $('#mekanizma_yon'),
-                $sis = $('#sistem'),
-                $sl = $('#slayt'),
-                $cam = $('#cam'),
-                $ic = $('#ic_cam'),
-                $dis = $('#dis_cam'),
-                $kr = $('#kasa_renk'),
-                $akr = $('#alt_kasa_renk'),
-                $ccr = $('#cam_cita_renk');
-
-            getRef().then(ref => {
-                fillSelect($renk, ref.renk);
-                fillSelect($mek, ref.mekanizma_yon);
-                fillSelect($sis, ref.sistem);
-                fillSelect($sl, ref.slayt);
-                fillSelect($cam, ref.cam);
-                fillSelect($ic, ref.camkalinlik);
-                fillSelect($dis, ref.camkalinlik);
-                fillSelect($kr, ref.kasarenk || ref.kasa_renk);
-                fillSelect($akr, ref.kasarenk || ref.kasa_renk);
-                fillSelect($ccr, ref.kasarenk || ref.kasa_renk);
-            });
+        function recalcTL() {
+            const kur = num($('[name="teklif_kur"]').val());
+            const dvz = num($('[name="teklif_doviz_tutar"]').val());
+            const tl = kur * dvz;
+            $('#tl_view').val(tl ? tl.toFixed(2) : '');
+            $('#tl_hidden').val(tl ? tl.toFixed(2) : '');
         }
 
-        // -------- Calculations --------
-        function recalc() {
-            const en = parseFloat(($('[name="en"]').val() || '').replace(',', '.')) || 0;
-            const boy = parseFloat(($('[name="boy"]').val() || '').replace(',', '.')) || 0;
-            const miktar = parseFloat(($('[name="miktar"]').val() || '').replace(',', '.')) || 0;
-            const m2f = parseFloat(($('[name="m2_fiyat"]').val() || '').replace(',', '.')) || 0;
-            let m2 = en * boy;
-            if (m2 > 0 && m2 < 1) m2 = 1;
-            const tutar = miktar * m2 * m2f;
-            $('#m2_view').val(m2 ? m2.toFixed(2) : '');
-            $('#m2_hidden').val(m2 ? m2.toFixed(2) : '');
-            $('#tutar_view').val(tutar ? tutar.toFixed(2) : '');
-            $('#tutar_hidden').val(tutar ? tutar.toFixed(2) : '');
-        }
-        $(document).on('input change', '[name="en"],[name="boy"],[name="miktar"],[name="m2_fiyat"]', recalc);
+        $(document).on('input change', '[name="teklif_kur"],[name="teklif_doviz_tutar"]', recalcTL);
 
-        // -------- Open modal (new) --------
-        $(document).on('click', '#btnNewOffer', function() {
-            $('#offerModalTitle').text('New Offer');
-            $('#offerForm')[0].reset();
+        function resetForm() {
+            $form[0].reset();
             $('#row_id').val('');
             $('[name=_method]').val('POST');
-            $('#m2_view,#tutar_view,#m2_hidden,#tutar_hidden').val('');
-            loadRefIntoForm();
-        });
+            $('#tl_view,#tl_hidden').val('');
+            $title.text('New Offer');
+            $('#btnSave').text('Kaydet');
+            $form.find('input[name="fis_no"]').trigger('focus');
+        }
 
-        // -------- View --------
-        $(document).on('click', '.act-view', function() {
-            const id = $(this).data('id');
-            $.getJSON('{{ url("/offer") }}/' + id).done(o => {
-                const fmt = v => (v === null || v === undefined || v === '') ? '-' : v;
-                const html = Object.entries(o).map(([k, v]) =>
-                    `<dt class="col-4">${k}</dt><dd class="col-8">${fmt(v)}</dd>`).join('');
-                $('#offerViewBody').html(html);
-                $('#offerView').modal('show');
-            });
-        });
+        function rowHtml(r) {
+            return `
+      <tr>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-warning act-edit" data-id="${r.id}">Edit</button>
+            <button class="btn btn-danger  act-del"  data-id="${r.id}">Delete</button>
+          </div>
+        </td>
+        <td>${fmt(r.id)}</td>
+        <td>${fmt(r.fis_no)}</td>
+        <td>${fmt(r.cari_kod)}</td>
+        <td>${fmt(r.musteri_ad)}</td>
+        <td>${fmt(r.marka)}</td>
+        <td>${fmt(r.bolum)}</td>
+        <td>${fmt(r.teklif_durum)}</td>
+        <td>${fmt(r.teklif_grubu)}</td>
+        <td>${fmt(r.teklif_doviz)}</td>
+        <td>${fmt(r.teklif_doviz_tutar)}</td>
+        <td>${fmt(r.teklif_kur)}</td>
+        <td>${fmt(r.teklif_tl_tutar)}</td>
+        <td>${fmt(r.termin_tarih)}</td>
+        <td>${fmt(r.onay_durum)}</td>
+        <td>${fmt(r.onay_tarih)}</td>
+        <td>${fmt(r.hazirlayan)}</td>
+        <td>${fmt(r.tarih || r.islem_tarih)}</td>
+      </tr>
+    `;
+        }
 
-        // -------- Edit (prefill) --------
-        $(document).on('click', '.act-edit', function() {
-            const id = $(this).data('id');
-            $.getJSON('{{ url("/offer") }}/' + id).done(o => {
-                $('#offerModalTitle').text('Edit Offer');
-                $('#row_id').val(o.id);
-                $('[name=_method]').val('PUT');
+        function loadOffers() {
+            $.getJSON(@json($offerData))
+                .done(rows => {
+                    rows.sort((a, b) => b.id - a.id);
+                    $tbody.empty();
+                    rows.forEach(r => $tbody.append(rowHtml(r)));
+                })
+                .fail(() => alert('Liste yüklenemedi'));
+        }
 
-                loadRefIntoForm(); // ensure selects are ready, then fill values slightly after
-                setTimeout(() => {
-                    for (const [k, v] of Object.entries(o)) {
-                        const $el = $('[name="' + k + '"]');
-                        if (!$el.length) continue;
-                        if ($el.is('select')) $el.val(v).trigger('change');
-                        else $el.val(v);
-                    }
-                    recalc();
-                }, 200);
-
-                $('.new-offer').modal('show');
-            });
-        });
-
-        // -------- Save (create/update) --------
-        $('#offerForm').on('submit', function(e) {
+        // Create / Update
+        $form.on('submit', function(e) {
             e.preventDefault();
-            recalc();
+            recalcTL();
             const id = $('#row_id').val();
-            const method = $('[name=_method]').val(); // POST or PUT
-            const url = method === 'PUT' ? ('{{ url("/offer") }}/' + id) : @json($offerStore);
+            const method = $('[name=_method]').val();
+            const url = method === 'PUT' ? (@json($offerShow) + '/' + id) : @json($offerStore);
 
             $.ajax({
                     url,
-                    method: method === 'PUT' ? 'POST' : 'POST',
-                    data: $(this).serialize()
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf
+                    },
+                    data: $form.serialize()
                 })
                 .done(() => {
-                    $('.new-offer').modal('hide');
+                    resetForm();
                     loadOffers();
                 })
                 .fail(xhr => alert(xhr.responseJSON?.message || 'Kaydedilemedi'));
         });
 
-        // -------- Delete --------
+        // Edit → prefill
+        $(document).on('click', '.act-edit', function() {
+            const id = $(this).data('id');
+            $.getJSON(@json($offerShow) + '/' + id)
+                .done(o => {
+                    $('#row_id').val(o.id);
+                    $('[name=_method]').val('PUT');
+                    $title.text('Edit Offer');
+                    $('#btnSave').text('Güncelle');
+
+                    // fill fields by key if present
+                    const map = [
+                        'fis_no', 'cari_kod', 'musteri_ad', 'konu', 'teklif_doviz', 'teklif_kur',
+                        'teklif_doviz_tutar', 'teklif_tl_tutar', 'teklif_durum', 'teklif_grubu',
+                        'termin_tarih', 'sevk_adres', 'aciklama', 'onay_durum', 'onay_tarih',
+                        'onaylayan', 'hazirlayan', 'bolum', 'marka'
+                    ];
+                    map.forEach(k => {
+                        const $el = $form.find('[name="' + k + '"]');
+                        if ($el.length) {
+                            $el.val(o[k] ?? '');
+                        }
+                    });
+                    recalcTL();
+
+                    $('html, body').animate({
+                        scrollTop: $form.offset().top - 80
+                    }, 200);
+                    $form.find('input[name="fis_no"]').trigger('focus');
+                })
+                .fail(() => alert('Kayıt getirilemedi'));
+        });
+
+        // Delete
         $(document).on('click', '.act-del', function() {
             const id = $(this).data('id');
             if (!confirm('Silinsin mi?')) return;
-            $.ajax({
-                    url: '{{ url("/offer") }}/' + id,
-                    method: 'POST',
-                    data: {
-                        _method: 'DELETE',
-                        _token: $('meta[name=csrf-token]').attr('content')
-                    }
+            $.post(@json($offerShow) + '/' + id, {
+                    _method: 'DELETE',
+                    _token: csrf
                 })
-                .done(() => loadOffers())
+                .done(loadOffers)
                 .fail(xhr => alert(xhr.responseJSON?.message || 'Silinemedi'));
         });
 
-    });
+        // Init
+        $('#btnReset').on('click', resetForm);
+        resetForm();
+        loadOffers();
+    })();
 </script>
+@endpush

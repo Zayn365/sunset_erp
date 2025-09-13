@@ -17,7 +17,6 @@ class User extends Authenticatable
         'mail',
         'sifre',
         'kullanici_tip',
-        // ...other fields...
     ];
 
     protected $hidden = ['sifre'];
@@ -36,6 +35,6 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return strtolower((string)$this->kullanici_tip) === 'admin';
+        return strtolower((string)$this->kullanici_tip) === '0';
     }
 }
