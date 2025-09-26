@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/components.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/admin/assets/css/custom.css') }}">
   <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/admin/assets/img/logo.png') }}" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 
   <style>
@@ -229,7 +230,10 @@
   <script src="{{ asset('assets/admin/assets/js/page/advance-table.js') }}"></script>
   <script src="{{ asset('assets/admin/assets/js/page/widget-chart.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
   {{-- 8) Global helpers + init --}}
   <script>
     // AJAX CSRF for all jQuery calls

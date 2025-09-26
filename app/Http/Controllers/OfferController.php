@@ -145,8 +145,53 @@ class OfferController extends Controller
     }
 
     /** Helpers */
+
+    public function options()
+    {
+        // Whitelist each dropdown and which table/columns it maps to.
+        // Change column names if your schema differs (e.g. name/ad/title).
+        $maps = [
+            'sistem'            => ['table' => 'sistem',     'id' => 'id', 'text' => 'kod'],
+            'renk'              => ['table' => 'renk',       'id' => 'id', 'text' => 'kod'],
+            'slayt'             => ['table' => 'slayt',      'id' => 'id', 'text' => 'kod'],
+            'camkalinlik'       => ['table' => 'camkalinlik', 'id' => 'id', 'text' => 'kod'],
+            'kasarenk'          => ['table' => 'kasarenk',   'id' => 'id', 'text' => 'kod'],
+        ];
+
+        $out = [];
+        foreach ($maps as $key => $m) {
+            if (!Schema::hasTable($m['table'])) {
+                $out[$key] = [];
+                continue;
+            }
+            $rows = DB::table($m['table'])
+                ->when(Schema::hasColumn($m['table'], $m['text']), function ($q) use ($m) {
+                    $q->orderBy($m['text']);
+                })
+                ->get([$m['id'] . ' as id', $m['text'] . ' as text']);
+            $out[$key] = $rows;
+        }
+
+        // Fixed-value dropdowns
+        $out['mekanizma_yon'] = [
+            ['id' => 'SOL', 'text' => 'SOL'],
+            ['id' => 'SAĞ', 'text' => 'SAĞ'],
+        ];
+        $out['cam_var_yok'] = [
+            ['id' => 'Var', 'text' => 'Var'],
+            ['id' => 'Yok', 'text' => 'Yok'],
+        ];
+
+        return response()->json($out);
+    }
+    // App/Http/Controllers/OfferController.php
+
     protected function nextFisNo(): int
     {
         return (int) (DB::table('teklif')->max('fis_no') ?? 0) + 1;
+    }
+    public function nextFis()
+    {
+        return response()->json(['next_fis_no' => $this->nextFisNo()]);
     }
 }

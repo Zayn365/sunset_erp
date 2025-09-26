@@ -36,12 +36,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/orderdetay/{id}',   [OrderDetayController::class, 'destroy'])->name('orderdetay.destroy');
 
     // Offers
+    Route::get('/offer/next-fis',  [OfferController::class, 'nextFis'])->name('offer.nextFis'); // <— specific FIRST
     Route::get('/offer',        [OfferController::class, 'index'])->name('offer.index');
     Route::get('/offer/data',   [OfferController::class, 'data'])->name('offer.data');
+    Route::get('/offer/options', [OfferController::class, 'options'])->name('offer.options');
     Route::post('/offer',       [OfferController::class, 'store'])->name('offer.store');
     Route::get('/offer/{id}',   [OfferController::class, 'show'])->name('offer.show');
     Route::put('/offer/{id}',   [OfferController::class, 'update'])->name('offer.update');
     Route::delete('/offer/{id}', [OfferController::class, 'destroy'])->name('offer.destroy');
+
 
     // Users
     Route::get('/user',         [UserController::class, 'index'])->name('user.index');
